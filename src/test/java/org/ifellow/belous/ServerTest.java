@@ -1,38 +1,25 @@
 package org.ifellow.belous;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import lombok.SneakyThrows;
+import org.ifellow.belous.steps.TestRegistrationUser;
+import org.ifellow.belous.steps.TestServerConnection;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-/**
- * Unit test for simple App.
- */
-public class ServerTest
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public ServerTest(String testName )
-    {
-        super( testName );
+
+public class ServerTest {
+
+    @Test
+    @DisplayName("Тест, что сервер запущен")
+    public void unitTest1() {
+        new TestServerConnection().testConnection();
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( ServerTest.class );
+    @SneakyThrows
+    @Test
+    @DisplayName("Тест на регистрацию пользователя")
+    public void unitTest2(){
+        new TestRegistrationUser().testRegistration();
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
 }

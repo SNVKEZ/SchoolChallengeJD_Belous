@@ -17,10 +17,16 @@
     <postgresql.version>42.7.4</postgresql.version>
     <owner.version>1.0.10</owner.version>
     <restAssured.version>4.2.0</restAssured.version>
+    <json.version>20210307</json.version>
   </properties>
 
   <dependencies>
 
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>${json.version}</version>
+    </dependency>
 
     <!-- https://mvnrepository.com/artifact/org.glassfish.jaxb/jaxb-runtime -->
     <dependency>

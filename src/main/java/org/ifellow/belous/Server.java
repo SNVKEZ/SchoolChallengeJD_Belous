@@ -6,7 +6,6 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.ifellow.belous.database.Database;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
-import org.ifellow.belous.model.User;
 import org.ifellow.belous.service.UserService;
 
 import java.io.IOException;
@@ -14,30 +13,20 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-/**
- * Hello world!
- *
- */
-public class Server
-{
+public class Server {
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static final UserService userService = new UserService();
 
     public static void main(String[] args) throws IOException {
-        RegisterUserDtoRequest user = new RegisterUserDtoRequest();
-        user.setLogin("snvkez");
-        user.setName("Alexei");
-        user.setPassword("shcvora");
-        user.setSurname("Belous");
-
-        userService.create(user);
-
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-
         server.createContext("/register", new RegisterHandler());
         server.setExecutor(null); // Используется дефолтный пул потоков
         server.start();
+        LOGGER.log(Level.INFO, "Server started");
     }
 
     // Обработчик для регистрации пользователя
@@ -46,14 +35,12 @@ public class Server
         public void handle(HttpExchange exchange) throws IOException {
             if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                 try {
-                    System.out.println(userService.getUserByLogin("snvkez"));
                     // Десериализация JSON в DTO
                     RegisterUserDtoRequest userDto = objectMapper.readValue(exchange.getRequestBody(), RegisterUserDtoRequest.class);
 
                     // Регистрация через UserService
                     String result = userService.create(userDto);
 
-                    System.out.println(userDto.getName());;
                     // Формирование JSON-ответа
                     Map<String, Object> response = new HashMap<>();
                     if (result.startsWith("ErrorExist")){
@@ -68,7 +55,6 @@ public class Server
                         sendJsonResponse(exchange, response, 201);
                     }
                 } catch (Exception e) {
-                    System.out.println(e);
                     sendErrorResponse(exchange, "Invalid request", 400);
                 }
             } else {
