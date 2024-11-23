@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
-import org.ifellow.belous.database.Database;
+import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
+import org.ifellow.belous.exceptions.NotExistUserException;
+import org.ifellow.belous.exceptions.RegisterException;
 import org.ifellow.belous.service.UserService;
 
 import java.io.IOException;
@@ -24,6 +26,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/register", new RegisterHandler());
+        server.createContext("/authorization", new AuthorizationHandler());
         server.setExecutor(null); // Используется дефолтный пул потоков
         server.start();
         LOGGER.log(Level.INFO, "Server started");
@@ -38,21 +41,42 @@ public class Server {
                     // Десериализация JSON в DTO
                     RegisterUserDtoRequest userDto = objectMapper.readValue(exchange.getRequestBody(), RegisterUserDtoRequest.class);
 
-                    // Регистрация через UserService
-                    String result = userService.create(userDto);
-
-                    // Формирование JSON-ответа
                     Map<String, Object> response = new HashMap<>();
-                    if (result.startsWith("ErrorExist")){
-                        response.put("error", "Пользователь уже существует");
-                        sendJsonResponse(exchange, response, 400);
-                    } else
-                    if (result.startsWith("Error")) {
-                        response.put("error", result);
-                        sendJsonResponse(exchange, response, 400);
-                    } else {
+                    try {
+                        userService.create(userDto);
                         response.put("message", "Пользователь создан");
                         sendJsonResponse(exchange, response, 201);
+                    } catch (RegisterException exception) {
+                        response.put("error", "Пользователь уже существует");
+                        sendJsonResponse(exchange, response, 400);
+                    }
+                } catch (Exception e) {
+                    sendErrorResponse(exchange, "Invalid request", 400);
+                }
+            } else {
+                sendErrorResponse(exchange, "Method Not Allowed", 405);
+            }
+        }
+    }
+
+    // Обработчик для регистрации пользователя
+    static class AuthorizationHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+                try {
+                    // Десериализация JSON в DTO
+                    LoginDtoRequest userDto = objectMapper.readValue(exchange.getRequestBody(), LoginDtoRequest.class);
+
+                    Map<String, Object> response = new HashMap<>();
+                    try {
+                        String ID = userService.authorization(userDto);
+                        response.put("message", "Вход успешный");
+                        response.put("token", ID);
+                        sendJsonResponse(exchange, response, 200);
+                    } catch (NotExistUserException exception) {
+                        response.put("error", exception.getMessage() + " " + userDto.getLogin());
+                        sendJsonResponse(exchange, response, 400);
                     }
                 } catch (Exception e) {
                     sendErrorResponse(exchange, "Invalid request", 400);
