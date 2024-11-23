@@ -1,9 +1,11 @@
 package org.ifellow.belous.handlers.song;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
 import org.ifellow.belous.exceptions.NotExistTokenSession;
 import org.ifellow.belous.exceptions.NotExistUserException;
+import org.ifellow.belous.exceptions.NotValidDataException;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
 import org.ifellow.belous.handlers.MainHandler;
 
@@ -31,8 +33,9 @@ public class CreateSongHandler extends MainHandler {
                 SongCreateDtoRequest song = objectMapper.readValue(exchange.getRequestBody(), SongCreateDtoRequest.class);
 
                 try {
+                    isValid(song);
                     songService.create(song);
-                    response.put("message", "Песня успешно создана" + song.getName());
+                    response.put("message", "Песня успешно создана");
                     sendJsonResponse(exchange, response, 200);
                 } catch (NotExistUserException exception) {
                     response.put("error", exception.getMessage());
@@ -40,6 +43,9 @@ public class CreateSongHandler extends MainHandler {
                 } catch (NotValidSongException exception){
                     response.put("error", exception.getMessage());
                     sendJsonResponse(exchange, response, 403);
+                } catch (NotValidDataException e){
+                    response.put("error", e.getMessage());
+                    sendJsonResponse(exchange, response, 404);
                 }
                 } catch (NotExistTokenSession existTokenSession) {
                     response.put("error", existTokenSession.getMessage());
@@ -53,6 +59,16 @@ public class CreateSongHandler extends MainHandler {
             }
         } else {
             sendErrorResponse(exchange, "Method Not Allowed", 405);
+        }
+    }
+
+    private void isValid(SongCreateDtoRequest song){
+        if(!(song != null
+                && song.getComposers()!=null && !song.getComposers().isEmpty()
+                && song.getName()!=null && !song.getName().isEmpty()
+                && song.getAuthors()!=null && !song.getAuthors().isEmpty()
+                && song.getExecutor()!=null && !song.getExecutor().isEmpty())){
+            throw new NotValidDataException("Неправильная валидация запроса");
         }
     }
 }
