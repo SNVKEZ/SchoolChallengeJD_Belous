@@ -1,7 +1,9 @@
 package org.ifellow.belous.handlers;
 
 import com.sun.net.httpserver.HttpExchange;
+import org.ifellow.belous.database.Database;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
+import org.ifellow.belous.exceptions.AutorizeYetException;
 import org.ifellow.belous.exceptions.NotExistUserException;
 
 import java.io.IOException;
@@ -24,6 +26,9 @@ public class AuthorizationHandler extends MainHandler {
                     sendJsonResponse(exchange, response, 200);
                 } catch (NotExistUserException exception) {
                     response.put("error", exception.getMessage() + " " + userDto.getLogin());
+                    sendJsonResponse(exchange, response, 400);
+                } catch (AutorizeYetException e){
+                    response.put("error", e.getMessage());
                     sendJsonResponse(exchange, response, 400);
                 }
             } catch (Exception e) {

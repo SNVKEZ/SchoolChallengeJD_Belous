@@ -16,7 +16,8 @@ public interface UserDao {
 
     void logOutUser(String token);
 
-    boolean checkActiveSession(String token);
+    boolean checkActiveSession(String login);
+    boolean checkActiveSessionByToken(String token);
 
-    public void recordSession(String ID);
+    public void recordSession(String login, String ID);
 }
