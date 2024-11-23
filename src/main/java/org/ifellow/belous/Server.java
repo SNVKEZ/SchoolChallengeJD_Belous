@@ -27,7 +27,7 @@ public class Server {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/register", new RegisterHandler());
         server.createContext("/authorization", new AuthorizationHandler());
-        server.setExecutor(null); // Используется дефолтный пул потоков
+        server.setExecutor(null);
         server.start();
         LOGGER.log(Level.INFO, "Server started");
     }
