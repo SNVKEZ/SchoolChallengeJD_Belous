@@ -42,6 +42,16 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public void logOutUser(String token) {
+        Database.activeSessions.removeIf(s -> s.equals(token));
+    }
+
+    @Override
+    public boolean checkActiveSession(String token) {
+        return Database.activeSessions.contains(token);
+    }
+
+    @Override
     public void recordSession(String ID) {
         Database.activeSessions.add(ID);
     }
