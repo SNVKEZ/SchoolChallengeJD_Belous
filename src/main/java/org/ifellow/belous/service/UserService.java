@@ -39,6 +39,11 @@ public class UserService {
         return ID;
     }
 
+    public void checkAuthorization(String token){
+        if(!userDao.checkActiveSessionByToken(token)){
+            throw new NotExistTokenSession("Несуществующая сессия");
+        }
+    }
     public void logOut(String token) {
         if (userDao.checkActiveSessionByToken(token)) {
             userDao.logOutUser(token);
