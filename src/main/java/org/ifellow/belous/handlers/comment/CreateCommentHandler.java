@@ -3,6 +3,7 @@ package org.ifellow.belous.handlers.comment;
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.CommentCreateDtoRequest;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
+import org.ifellow.belous.exceptions.song.NotExistSongByNameAndExecutorException;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
 import org.ifellow.belous.exceptions.user.NotExistTokenSession;
 import org.ifellow.belous.exceptions.user.NotExistUserException;
@@ -32,24 +33,22 @@ public class CreateCommentHandler extends MainHandler {
                     // Десериализация JSON в DTO
                     CommentCreateDtoRequest comment = objectMapper.readValue(exchange.getRequestBody(), CommentCreateDtoRequest.class);
 
-                    System.out.println(comment.getName());
-                    System.out.println(comment.getExecutor());
-                    System.out.println(comment.getCommentaries());
                     try {
                         isValid(comment);
                         commentService.create(comment, userService.getLoginByToken(authHeader),
-                                songService.getIdByExecutorAndName(comment.getName(), comment.getExecutor()));
+                                songService.getIdByExecutorAndName(comment.getExecutor(), comment.getName()));
                         response.put("message", "Комментарий успешно создан");
                         sendJsonResponse(exchange, response, 200);
-                    } catch (NotExistUserException exception) {
+                    } catch (NotExistSongByNameAndExecutorException | NotExistUserException exception){
                         response.put("error", exception.getMessage());
-                        sendJsonResponse(exchange, response, 400);
-                    } catch (NotValidSongException exception){
+                        sendJsonResponse(exchange, response, 404);
+                    }
+                    catch (NotValidSongException exception){
                         response.put("error", exception.getMessage());
                         sendJsonResponse(exchange, response, 403);
                     } catch (NotValidDataException e){
                         response.put("error", e.getMessage());
-                        sendJsonResponse(exchange, response, 404);
+                        sendJsonResponse(exchange, response, 400);
                     }
                 } catch (NotExistTokenSession existTokenSession) {
                     response.put("error", existTokenSession.getMessage());

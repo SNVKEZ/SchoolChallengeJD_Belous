@@ -32,8 +32,13 @@ public class SongDaoImpl implements SongDao {
 
     @Override
     public String idSongByExecutorAndName(String executor, String name) {
-        return String.valueOf(Database.songs.stream()
-                .filter(song -> song.getExecutor().equals(executor) && song.getName().equals(name))
-                .map(Song::getId).findFirst());
+        System.out.println("-"+Database.songs.get(0).getName()+"-"+name+"-");
+        System.out.println("-"+Database.songs.get(0).getName().equals(name)+"-");
+        System.out.println("-"+Database.songs.get(0).getExecutor()+"-"+executor+"-");
+        System.out.println("-"+Database.songs.get(0).getExecutor().equals(executor)+"-");
+        return Database.songs.stream()
+                .filter(song -> song.getExecutor().contains(executor) && song.getName().contains(name))
+                .map(Song::getId)  // Извлекаем id
+                .findFirst().orElse(null);
     }
 }
