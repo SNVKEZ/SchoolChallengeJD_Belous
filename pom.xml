@@ -18,6 +18,8 @@
     <owner.version>1.0.10</owner.version>
     <restAssured.version>4.2.0</restAssured.version>
     <json.version>20210307</json.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
   <dependencies>

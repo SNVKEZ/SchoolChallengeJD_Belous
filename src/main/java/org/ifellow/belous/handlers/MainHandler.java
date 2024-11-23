@@ -15,6 +15,10 @@ public class MainHandler implements HttpHandler {
     protected static final ObjectMapper objectMapper = new ObjectMapper();
     protected static final UserService userService = new UserService();
 
+//    protected static void checkValidRequest(Object object){
+//
+//    }
+
     // Метод для отправки JSON-ответа
     protected static void sendJsonResponse(HttpExchange exchange, Map<String, ?> response, int statusCode) throws IOException {
         String jsonResponse = objectMapper.writeValueAsString(response);
