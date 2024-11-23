@@ -1,10 +1,10 @@
 package org.ifellow.belous.dto.request;
 
-import lombok.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
-//@Value
-//@Builder
 @Setter
 @Getter
 public class RegisterUserDtoRequest {

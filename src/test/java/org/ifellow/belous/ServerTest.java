@@ -21,5 +21,4 @@ public class ServerTest {
     public void unitTest2(){
         new TestRegistrationUser().testRegistration();
     }
-
 }
