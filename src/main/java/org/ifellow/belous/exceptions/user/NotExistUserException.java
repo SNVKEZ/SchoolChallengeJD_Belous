@@ -1,4 +1,4 @@
-package org.ifellow.belous.exceptions;
+package org.ifellow.belous.exceptions.user;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

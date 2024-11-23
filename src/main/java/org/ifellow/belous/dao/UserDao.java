@@ -4,6 +4,8 @@ import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.model.User;
 
+import java.util.Optional;
+
 public interface UserDao {
 
     void create(RegisterUserDtoRequest user);
@@ -14,6 +16,7 @@ public interface UserDao {
 
     User getUserByLogin(String login);
 
+    String getLoginByToken(String token);
     void logOutUser(String token);
 
     boolean checkActiveSession(String login);

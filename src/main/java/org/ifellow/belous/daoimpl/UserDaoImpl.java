@@ -6,9 +6,9 @@ import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.model.User;
 
-import javax.xml.crypto.Data;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 
 public class UserDaoImpl implements UserDao {
@@ -43,6 +43,15 @@ public class UserDaoImpl implements UserDao {
         return Database.users.stream()
                 .filter(user -> user.getLogin().equals(login))
                 .findFirst().get();
+    }
+
+    public String getLoginByToken(String token) {
+        return Database.activeSessions.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().equals(token))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

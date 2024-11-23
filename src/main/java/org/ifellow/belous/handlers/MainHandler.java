@@ -3,6 +3,7 @@ package org.ifellow.belous.handlers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import org.ifellow.belous.service.CommentService;
 import org.ifellow.belous.service.SongService;
 import org.ifellow.belous.service.UserService;
 
@@ -16,6 +17,7 @@ public class MainHandler implements HttpHandler {
     protected static final ObjectMapper objectMapper = new ObjectMapper();
     protected static final UserService userService = new UserService();
     protected static final SongService songService = new SongService();
+    protected static final CommentService commentService = new CommentService();
 
 //    protected static void checkValidRequest(Object object){
 //

@@ -1,6 +1,7 @@
 package org.ifellow.belous;
 
 import com.sun.net.httpserver.HttpServer;
+import org.ifellow.belous.handlers.comment.CreateCommentHandler;
 import org.ifellow.belous.handlers.song.CreateSongHandler;
 import org.ifellow.belous.handlers.user.AuthorizationHandler;
 import org.ifellow.belous.handlers.user.OutUserHandler;
@@ -20,6 +21,7 @@ public class Server {
         server.createContext("/authorization", new AuthorizationHandler());
         server.createContext("/out", new OutUserHandler());
         server.createContext("/song/create", new CreateSongHandler());
+        server.createContext("/comment/create", new CreateCommentHandler());
         server.setExecutor(null);
         server.start();
         LOGGER.log(Level.INFO, "Server started");
