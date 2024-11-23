@@ -1,4 +1,4 @@
-package org.ifellow.belous;
+package org.ifellow.belous.hooks;
 
 import org.ifellow.belous.steps.TestServerConnection;
 import org.junit.jupiter.api.Assertions;

@@ -1,0 +1,13 @@
+{
+  "name": "Zima Blue",
+  "executor": "Markul",
+  "duration": 3600,
+  "composers": [
+    "Alice",
+    "Bob"
+  ],
+  "authors": [
+    "Alice",
+    "Bob"
+  ]
+}
