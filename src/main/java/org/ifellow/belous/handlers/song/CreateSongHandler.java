@@ -1,11 +1,10 @@
 package org.ifellow.belous.handlers.song;
 
 import com.sun.net.httpserver.HttpExchange;
-import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
-import org.ifellow.belous.exceptions.NotExistTokenSession;
-import org.ifellow.belous.exceptions.NotExistUserException;
-import org.ifellow.belous.exceptions.NotValidDataException;
+import org.ifellow.belous.exceptions.user.NotExistTokenSession;
+import org.ifellow.belous.exceptions.user.NotExistUserException;
+import org.ifellow.belous.exceptions.user.NotValidDataException;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
 import org.ifellow.belous.handlers.MainHandler;
 
@@ -34,7 +33,7 @@ public class CreateSongHandler extends MainHandler {
 
                 try {
                     isValid(song);
-                    songService.create(song);
+                    songService.create(song, userService.getLoginByToken(authHeader));
                     response.put("message", "Песня успешно создана");
                     sendJsonResponse(exchange, response, 200);
                 } catch (NotExistUserException exception) {

@@ -2,8 +2,8 @@ package org.ifellow.belous.handlers.user;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
-import org.ifellow.belous.exceptions.AutorizeYetException;
-import org.ifellow.belous.exceptions.NotExistUserException;
+import org.ifellow.belous.exceptions.user.AutorizeYetException;
+import org.ifellow.belous.exceptions.user.NotExistUserException;
 import org.ifellow.belous.handlers.MainHandler;
 
 import java.io.IOException;

@@ -3,10 +3,10 @@ package org.ifellow.belous.service;
 import org.ifellow.belous.daoimpl.UserDaoImpl;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
-import org.ifellow.belous.exceptions.AutorizeYetException;
-import org.ifellow.belous.exceptions.NotExistTokenSession;
-import org.ifellow.belous.exceptions.NotExistUserException;
-import org.ifellow.belous.exceptions.RegisterException;
+import org.ifellow.belous.exceptions.user.AutorizeYetException;
+import org.ifellow.belous.exceptions.user.NotExistTokenSession;
+import org.ifellow.belous.exceptions.user.NotExistUserException;
+import org.ifellow.belous.exceptions.user.RegisterException;
 
 import java.util.UUID;
 
@@ -39,6 +39,9 @@ public class UserService {
         return ID;
     }
 
+    public String getLoginByToken(String token){
+       return userDao.getLoginByToken(token);
+    }
     public void checkAuthorization(String token){
         if(!userDao.checkActiveSessionByToken(token)){
             throw new NotExistTokenSession("Несуществующая сессия");
