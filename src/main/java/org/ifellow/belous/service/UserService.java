@@ -3,6 +3,7 @@ package org.ifellow.belous.service;
 import org.ifellow.belous.daoimpl.UserDaoImpl;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
+import org.ifellow.belous.exceptions.NotExistTokenSession;
 import org.ifellow.belous.exceptions.NotExistUserException;
 import org.ifellow.belous.exceptions.RegisterException;
 
@@ -32,5 +33,14 @@ public class UserService {
             userDao.recordSession(ID);
         }
         return ID;
+    }
+
+    public void logOut(String token) {
+        if (userDao.checkActiveSession(token)) {
+            userDao.logOutUser(token);
+        } else {
+            throw new NotExistTokenSession("Несуществующая сессия");
+        }
+
     }
 }

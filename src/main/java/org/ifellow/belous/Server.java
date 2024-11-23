@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
+import org.ifellow.belous.exceptions.NotExistTokenSession;
 import org.ifellow.belous.exceptions.NotExistUserException;
 import org.ifellow.belous.exceptions.RegisterException;
 import org.ifellow.belous.service.UserService;
@@ -27,9 +28,26 @@ public class Server {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
         server.createContext("/register", new RegisterHandler());
         server.createContext("/authorization", new AuthorizationHandler());
-        server.setExecutor(null);
+        server.createContext("/out", new OutUserHandler());
+        server.setExecutor(null); // Используется дефолтный пул потоков
         server.start();
         LOGGER.log(Level.INFO, "Server started");
+    }
+
+    // Метод для отправки JSON-ответа
+    private static void sendJsonResponse(HttpExchange exchange, Map<String, ?> response, int statusCode) throws IOException {
+        String jsonResponse = objectMapper.writeValueAsString(response);
+        exchange.sendResponseHeaders(statusCode, jsonResponse.getBytes().length);
+        try (OutputStream os = exchange.getResponseBody()) {
+            os.write(jsonResponse.getBytes());
+        }
+    }
+
+    // Метод для отправки JSON-ошибки
+    private static void sendErrorResponse(HttpExchange exchange, String errorMessage, int statusCode) throws IOException {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", errorMessage);
+        sendJsonResponse(exchange, response, statusCode);
     }
 
     // Обработчик для регистрации пользователя
@@ -87,19 +105,32 @@ public class Server {
         }
     }
 
-    // Метод для отправки JSON-ответа
-    private static void sendJsonResponse(HttpExchange exchange, Map<String, ?> response, int statusCode) throws IOException {
-        String jsonResponse = objectMapper.writeValueAsString(response);
-        exchange.sendResponseHeaders(statusCode, jsonResponse.getBytes().length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(jsonResponse.getBytes());
-        }
-    }
+    static class OutUserHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+                // Получение заголовков
+                String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
 
-    // Метод для отправки JSON-ошибки
-    private static void sendErrorResponse(HttpExchange exchange, String errorMessage, int statusCode) throws IOException {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", errorMessage);
-        sendJsonResponse(exchange, response, statusCode);
+                if (authHeader == null || authHeader.isEmpty()) {
+                    // Если заголовок отсутствует
+                    sendErrorResponse(exchange, "Missing Authorization header", 401);
+                    return;
+                }
+
+                Map<String, Object> response = new HashMap<>();
+                try {
+                    userService.logOut(authHeader);
+                    response.put("message", "Access granted");
+                    sendJsonResponse(exchange, response, 200);
+                } catch (NotExistTokenSession existTokenSession) {
+                    response.put("error", existTokenSession.getMessage());
+                    sendJsonResponse(exchange, response, 400);
+                }
+            } else {
+                // Неподдерживаемый метод
+                sendErrorResponse(exchange, "Method Not Allowed", 405);
+            }
+        }
     }
 }
