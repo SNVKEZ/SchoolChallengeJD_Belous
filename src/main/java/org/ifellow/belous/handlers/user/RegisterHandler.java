@@ -1,9 +1,10 @@
-package org.ifellow.belous.handlers;
+package org.ifellow.belous.handlers.user;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.exceptions.NotValidDataException;
 import org.ifellow.belous.exceptions.RegisterException;
+import org.ifellow.belous.handlers.MainHandler;
 
 import java.io.IOException;
 import java.util.HashMap;

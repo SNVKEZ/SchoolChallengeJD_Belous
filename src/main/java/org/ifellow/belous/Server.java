@@ -1,9 +1,10 @@
 package org.ifellow.belous;
 
 import com.sun.net.httpserver.HttpServer;
-import org.ifellow.belous.handlers.AuthorizationHandler;
-import org.ifellow.belous.handlers.OutUserHandler;
-import org.ifellow.belous.handlers.RegisterHandler;
+import org.ifellow.belous.handlers.song.CreateSongHandler;
+import org.ifellow.belous.handlers.user.AuthorizationHandler;
+import org.ifellow.belous.handlers.user.OutUserHandler;
+import org.ifellow.belous.handlers.user.RegisterHandler;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -18,7 +19,8 @@ public class Server {
         server.createContext("/register", new RegisterHandler());
         server.createContext("/authorization", new AuthorizationHandler());
         server.createContext("/out", new OutUserHandler());
-        server.setExecutor(null); // Используется дефолтный пул потоков
+        server.createContext("/song/create", new CreateSongHandler());
+        server.setExecutor(null);
         server.start();
         LOGGER.log(Level.INFO, "Server started");
     }
