@@ -8,27 +8,25 @@ import java.nio.file.Paths;
 
 import static io.restassured.RestAssured.given;
 
-public class TestRegistrationUser {
+public class TestCreateComment {
+    public void testCreateComment(String jsonFilePath, int status, String token, String name, String executor) throws IOException {
+        String jsonString = new String(Files.readAllBytes(Paths.get(jsonFilePath)));
+        JSONObject body = new JSONObject(jsonString);
 
-    public void testRegistration(String jsonFilePath, int status, String login, String password, String name, String surname) throws IOException {
-        JSONObject body = new JSONObject(new String(Files.readAllBytes(Paths.get(jsonFilePath))));
-
-        body.put("login", login);
-        body.put("password", password);
         body.put("name", name);
-        body.put("surname", surname);
+        body.put("executor", executor);
 
         given()
                 .header("Content-type", "application/json")
+                .header("Authorization", token)
                 .baseUri("http://localhost:8080")
                 .body(body.toString())
                 .when()
-                .post("/register")
+                .post("/comment/create")
                 .then()
                 .statusCode(status)
                 .log().body()
                 .extract()
                 .response();
     }
-
 }
