@@ -6,6 +6,10 @@ import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
 import org.ifellow.belous.model.User;
 
+import javax.xml.crypto.Data;
+import java.util.Iterator;
+import java.util.Map;
+
 
 public class UserDaoImpl implements UserDao {
 
@@ -43,16 +47,29 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public void logOutUser(String token) {
-        Database.activeSessions.removeIf(s -> s.equals(token));
+        String login = null;
+        Iterator<Map.Entry<String, String>> iterator = Database.activeSessions.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> entry = iterator.next();
+            if (entry.getValue().equals(token)) {
+                login = entry.getKey(); // Удаляем запись
+            }
+        }
+        Database.activeSessions.remove(login);
     }
 
     @Override
-    public boolean checkActiveSession(String token) {
-        return Database.activeSessions.contains(token);
+    public boolean checkActiveSession(String login) {
+        return Database.activeSessions.containsKey(login);
     }
 
     @Override
-    public void recordSession(String ID) {
-        Database.activeSessions.add(ID);
+    public boolean checkActiveSessionByToken(String token) {
+        return Database.activeSessions.containsValue(token);
+    }
+
+    @Override
+    public void recordSession(String login, String ID) {
+        Database.activeSessions.put(login,ID);
     }
 }

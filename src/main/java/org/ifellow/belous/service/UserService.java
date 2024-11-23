@@ -3,6 +3,7 @@ package org.ifellow.belous.service;
 import org.ifellow.belous.daoimpl.UserDaoImpl;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
+import org.ifellow.belous.exceptions.AutorizeYetException;
 import org.ifellow.belous.exceptions.NotExistTokenSession;
 import org.ifellow.belous.exceptions.NotExistUserException;
 import org.ifellow.belous.exceptions.RegisterException;
@@ -28,15 +29,18 @@ public class UserService {
         }
         if (!userDao.authorization(loginUser, loginUser.getLogin())) {
             throw new NotExistUserException("Не верный пароль");
+        }
+        if (userDao.checkActiveSession(loginUser.getLogin())) {
+            throw new AutorizeYetException("Пользователь уже авторизован");
         } else {
             ID = UUID.randomUUID().toString();
-            userDao.recordSession(ID);
+            userDao.recordSession(loginUser.getLogin(), ID);
         }
         return ID;
     }
 
     public void logOut(String token) {
-        if (userDao.checkActiveSession(token)) {
+        if (userDao.checkActiveSessionByToken(token)) {
             userDao.logOutUser(token);
         } else {
             throw new NotExistTokenSession("Несуществующая сессия");
