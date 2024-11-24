@@ -4,6 +4,7 @@ import lombok.SneakyThrows;
 import org.ifellow.belous.hooks.TestHooks;
 import org.ifellow.belous.steps.*;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -12,6 +13,7 @@ public class ScenarioTests extends TestHooks {
     @Test
     @DisplayName("Тест-сценарий с полной прогонкой сервера")
     @SneakyThrows
+    @Tag("Scenario")
     public void scenarioTest() {
 
         String[] composers = {"Alice", "Bob"};
