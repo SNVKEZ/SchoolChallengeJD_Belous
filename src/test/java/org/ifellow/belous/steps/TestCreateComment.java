@@ -24,8 +24,8 @@ public class TestCreateComment {
                 .when()
                 .post("/comment/create")
                 .then()
-                .statusCode(status)
                 .log().body()
+                .statusCode(status)
                 .extract()
                 .response();
     }

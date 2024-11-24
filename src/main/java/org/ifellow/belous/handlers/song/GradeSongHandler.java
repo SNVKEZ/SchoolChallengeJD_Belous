@@ -1,7 +1,6 @@
 package org.ifellow.belous.handlers.song;
 
 import com.sun.net.httpserver.HttpExchange;
-import org.ifellow.belous.database.Database;
 import org.ifellow.belous.dto.request.RateSongDtoRequest;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
 import org.ifellow.belous.dto.response.GradeSongDtoResponse;
@@ -16,7 +15,6 @@ import org.ifellow.belous.handlers.MainHandler;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 
 public class GradeSongHandler extends MainHandler {
     @Override
@@ -36,7 +34,6 @@ public class GradeSongHandler extends MainHandler {
                     // Десериализация JSON в DTO
                     RateSongDtoRequest song = objectMapper.readValue(exchange.getRequestBody(), RateSongDtoRequest.class);
 
-                    System.out.println(Arrays.toString(Database.songs.toArray()));
                     try {
                         songService.rateSong(userService.getLoginByToken(authHeader), song);
                         response.setSuccess_message("Оценка песни успешно выставлена");

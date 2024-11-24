@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
 import org.ifellow.belous.dto.response.CreateSongDtoResponse;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
+import org.ifellow.belous.exceptions.song.SongYetExistException;
 import org.ifellow.belous.exceptions.user.NotExistTokenSession;
 import org.ifellow.belous.exceptions.user.NotExistUserException;
 import org.ifellow.belous.exceptions.user.NotValidDataException;
@@ -37,6 +38,11 @@ public class CreateSongHandler extends MainHandler {
                         response.setTime(timeNow);
                         String jsonResponse = objectMapper.writeValueAsString(response);
                         sendJsonResponse(exchange, jsonResponse, 200);
+                    } catch (SongYetExistException exception) {
+                        ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
+                        ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                        String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                        sendJsonResponse(exchange, jsonResponse, 409);
                     } catch (NotExistUserException exception) {
                         ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
                         ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
