@@ -1,4 +1,4 @@
-package org.ifellow.belous;
+package org.ifellow.belous.tests;
 
 import org.ifellow.belous.hooks.TestHooks;
 import org.ifellow.belous.steps.*;
@@ -11,8 +11,8 @@ import java.util.logging.Logger;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ServerTest extends TestHooks {
-    private static final Logger LOGGER = Logger.getLogger(ServerTest.class.getName());
+public class UnitTests extends TestHooks {
+    private static final Logger LOGGER = Logger.getLogger(UnitTests.class.getName());
     private static String token;
 
     @Test
@@ -55,6 +55,7 @@ public class ServerTest extends TestHooks {
         TestAuthorizationUser testAuthorizationUser = new TestAuthorizationUser();
         token = testAuthorizationUser.testAuthorizationUser(200);
 
+
     }
 
     @Test
@@ -94,6 +95,7 @@ public class ServerTest extends TestHooks {
         TestAuthorizationUser testAuthorizationUser = new TestAuthorizationUser();
         token = testAuthorizationUser.testAuthorizationUser(200);
         new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreate.json", 200, token, 3500, composers, authors);
+
 
     }
 
@@ -144,6 +146,9 @@ public class ServerTest extends TestHooks {
         new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login, "test1", "test1", "test1");
         TestAuthorizationUser testAuthorizationUser = new TestAuthorizationUser();
         token = testAuthorizationUser.testAuthorizationUser(200, login);
+        String[] composers = {"Alice", "Bob"};
+        String[] authors = {"Alice", "Bob"};
+        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreateOther1.json", 200, token, 3500, composers, authors);
         new TestCreateGrade().testCreateGrade("src/test/resources/jsons/grade.json", 200, token);
     }
 
@@ -165,14 +170,45 @@ public class ServerTest extends TestHooks {
     public void unitDeleteUser() throws IOException {
         LOGGER.log(Level.INFO, "Тест удаления пользователя");
         String login = "test" + UUID.randomUUID().toString().substring(0, 12);
+        String login2 = "test" + UUID.randomUUID().toString().substring(0, 12);
         new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login, "test1", "test1", "test1");
         TestAuthorizationUser testAuthorizationUser = new TestAuthorizationUser();
         token = testAuthorizationUser.testAuthorizationUser(200, login);
+
+        new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login2, "test1", "test1", "test1");
+        String token2 = testAuthorizationUser.testAuthorizationUser(200, login2);
+
         String[] composers = {"Alice", "Bob"};
         String[] authors = {"Alice", "Bob"};
-        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreate.json", 200, token, 3500, composers, authors);
-        new TestCreateGrade().testCreateGrade("src/test/resources/jsons/grade.json", 200, token);
+        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreateOther.json", 200, token, 400, composers, authors);
+        new TestCreateGrade().testCreateGrade("src/test/resources/jsons/gradeOther.json", 200, token2);
+        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreateOther2.json", 200, token, 2870, composers, authors);
+        new TestConcert().testConcert(200, token);
+        new TestDeleteUser().testDeleteUser(login, token);
+    }
+
+    @Test
+    @DisplayName("Тест на просмотр концерта")
+    @Order(17)
+    public void unitShowConcert() throws IOException {
+        LOGGER.log(Level.INFO, "Тест удаления пользователя");
+        String login = "test" + UUID.randomUUID().toString().substring(0, 12);
+        String login2 = "test" + UUID.randomUUID().toString().substring(0, 12);
+        new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login, "test1", "test1", "test1");
+        TestAuthorizationUser testAuthorizationUser = new TestAuthorizationUser();
+        token = testAuthorizationUser.testAuthorizationUser(200, login);
+
+        new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login2, "test1", "test1", "test1");
+        String token2 = testAuthorizationUser.testAuthorizationUser(200, login2);
+
+        String[] composers = {"Alice", "Bob"};
+        String[] authors = {"Alice", "Bob"};
+        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreateOther.json", 200, token, 400, composers, authors);
+        new TestCreateGrade().testCreateGrade("src/test/resources/jsons/gradeOther.json", 200, token2);
+        new TestCreateSound().testCreateSound("src/test/resources/jsons/soundCreateOther2.json", 200, token, 2870, composers, authors);
+        new TestConcert().testConcert(200, token);
         new TestDeleteUser().testDeleteUser(login, token);
         new TestRegistrationUser().testRegistration("src/test/resources/jsons/newUser.json", 201, login, "test1", "test1", "test1");
+        new TestConcert().testConcert(200, token);
     }
 }

@@ -6,11 +6,15 @@ import org.ifellow.belous.dto.request.RateSongDtoRequest;
 import org.ifellow.belous.dto.request.SongCreateDtoRequest;
 import org.ifellow.belous.model.Song;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SongDaoImpl implements SongDao {
+
+    private void sort() {
+        Database.songs.sort(Comparator.comparingDouble(Song::getAverageGrade).reversed() // По averageGrade по убыванию
+                .thenComparingInt(Song::getDuration));
+    }
+
     @Override
     public void create(SongCreateDtoRequest song, String login) {
         Map<String, Integer> rate = new HashMap<>();
@@ -29,12 +33,13 @@ public class SongDaoImpl implements SongDao {
                 .averageGrade(5)
                 .idComment(new ArrayList<>())
                 .build());
+        sort();
     }
 
     @Override
     public String idSongByExecutorAndName(String executor, String name) {
         return Database.songs.stream()
-                .filter(song -> song.getExecutor().contains(executor) && song.getName().contains(name))
+                .filter(song -> song.getExecutor().equals(executor) && song.getName().equals(name))
                 .map(Song::getId)  // Извлекаем id
                 .findFirst().orElse(null);
     }
@@ -44,6 +49,7 @@ public class SongDaoImpl implements SongDao {
         Database.songs.stream()
                 .filter(song -> song.getExecutor().equals(executor) && song.getName().equals(name))
                 .findFirst().orElseThrow(() -> new RuntimeException("Песня не найдена")).getIdComment().add(idComment);
+        sort();
     }
 
     @Override
@@ -66,6 +72,7 @@ public class SongDaoImpl implements SongDao {
                                 .mapToInt(Integer::intValue) // Преобразуем значения в IntStream
                                 .average()                  // Вычисляем среднее
                                 .orElse(0.0) * 100.0) / 100.0);
+        sort();
     }
 
     @Override
@@ -78,7 +85,7 @@ public class SongDaoImpl implements SongDao {
     @Override
     public void deleteSongByLogin(String login) {
         Database.songs.removeIf(song -> song.getUser().equals(login) && song.getRating().size() == 1);
-
+        sort();
     }
 
     @Override
@@ -86,5 +93,26 @@ public class SongDaoImpl implements SongDao {
         Database.songs.stream()
                 .filter(song -> song.getUser().equals(login) && song.getRating().size() > 1)
                 .forEach(song -> song.getRating().remove(login));
+        sort();
+    }
+
+    @Override
+    public List<Song> getConcert() {
+        List<Song> result = new ArrayList<>();
+        int[] currentSum = {0};
+        Database.songs.stream()
+                .takeWhile(song -> {
+                    int nextDuration = song.getDuration();
+                    if (!result.isEmpty()) {
+                        nextDuration += 10; // Добавляем 10 секунд, если это не первый элемент
+                    }
+                    if (currentSum[0] + nextDuration <= 3600) {
+                        currentSum[0] += nextDuration;
+                        return true;
+                    }
+                    return false;
+                })
+                .forEach(result::add);
+        return result;
     }
 }

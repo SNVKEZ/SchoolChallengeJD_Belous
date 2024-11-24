@@ -36,14 +36,7 @@ public class UserDaoImpl implements UserDao {
                 .anyMatch(user -> user.getLogin().equals(login) && user.getPassword().equals(userLogin.getPassword()));
     }
 
-
     @Override
-    public User getUserByLogin(String login) {
-        return Database.users.stream()
-                .filter(user -> user.getLogin().equals(login))
-                .findFirst().get();
-    }
-
     public String getLoginByToken(String token) {
         return Database.activeSessions.entrySet()
                 .stream()

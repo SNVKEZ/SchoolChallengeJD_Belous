@@ -21,8 +21,8 @@ public class TestAuthorizationUser {
                 .when()
                 .post("/authorization")
                 .then()
-                .statusCode(status)
                 .log().body()
+                .statusCode(status)
                 .extract()
                 .jsonPath()
                 .getString("token");
@@ -43,8 +43,8 @@ public class TestAuthorizationUser {
                 .when()
                 .post("/authorization")
                 .then()
-                .statusCode(status)
                 .log().body()
+                .statusCode(status)
                 .extract()
                 .jsonPath()
                 .getString("token");

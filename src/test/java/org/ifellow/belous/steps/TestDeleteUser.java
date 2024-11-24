@@ -10,6 +10,7 @@ public class TestDeleteUser {
                 .get("http://localhost:8080/user/delete?login=" + login)
                 .then()
                 .log().body()
+                .statusCode(200)
                 .extract()
                 .response();
     }

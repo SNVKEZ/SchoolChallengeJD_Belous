@@ -7,6 +7,10 @@ import org.ifellow.belous.dto.request.SongCreateDtoRequest;
 import org.ifellow.belous.exceptions.song.NotExistSongByNameAndExecutorException;
 import org.ifellow.belous.exceptions.song.NotModifyGradeSongByOwnerException;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
+import org.ifellow.belous.exceptions.song.SongYetExistException;
+import org.ifellow.belous.model.Song;
+
+import java.util.List;
 
 public class SongService {
     private final SongDao songDao = new SongDaoImpl();
@@ -14,7 +18,10 @@ public class SongService {
     public void create(SongCreateDtoRequest song, String login){
         if (song.getDuration()<=0 || song.getDuration()>3600){
             throw new NotValidSongException("Неправильная валидация поля ","duration");
-        }else {
+        }
+        if (songDao.idSongByExecutorAndName(song.getExecutor(), song.getName()) != null) {
+            throw new SongYetExistException("Песня: " + song.getExecutor() + " - " + song.getName() + " уже существует");
+        } else {
             songDao.create(song, login);
         }
     }
@@ -53,5 +60,9 @@ public class SongService {
     public void deleteSongAndRateDeletedUser(String login) {
         songDao.deleteSongByLogin(login);
         songDao.deleteRateByLogin(login);
+    }
+
+    public List<Song> getConcert() {
+        return songDao.getConcert();
     }
 }

@@ -25,8 +25,8 @@ public class TestRegistrationUser {
                 .when()
                 .post("/register")
                 .then()
-                .statusCode(status)
                 .log().body()
+                .statusCode(status)
                 .extract()
                 .response();
     }
