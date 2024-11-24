@@ -1,9 +1,11 @@
 package org.ifellow.belous.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Data
-@Value
 @Builder
 @Setter
 @Getter

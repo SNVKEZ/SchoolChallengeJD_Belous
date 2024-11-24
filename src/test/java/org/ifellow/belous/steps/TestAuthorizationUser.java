@@ -31,4 +31,26 @@ public class TestAuthorizationUser {
 
     }
 
+    public String testAuthorizationUser(int status, String login) throws IOException {
+        JSONObject body = new JSONObject(new String(Files.readAllBytes(Paths.get("src/test/resources/jsons/authorizationUser.json"))));
+
+        body.put("login", login);
+
+        token = given()
+                .header("Content-type", "application/json")
+                .baseUri("http://localhost:8080")
+                .body(body.toString())
+                .when()
+                .post("/authorization")
+                .then()
+                .statusCode(status)
+                .log().body()
+                .extract()
+                .jsonPath()
+                .getString("token");
+
+        return token;
+
+    }
+
 }

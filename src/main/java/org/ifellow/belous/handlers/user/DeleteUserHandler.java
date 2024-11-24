@@ -1,18 +1,23 @@
 package org.ifellow.belous.handlers.user;
 
 import com.sun.net.httpserver.HttpExchange;
-import org.ifellow.belous.dto.response.LogOutUserDtoResponse;
+import org.ifellow.belous.dto.response.DeleteUserDtoResponse;
 import org.ifellow.belous.exceptions.user.NotExistTokenSession;
 import org.ifellow.belous.handlers.MainHandler;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
-public class OutUserHandler extends MainHandler {
+public class DeleteUserHandler extends MainHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            URI requestUri = exchange.getRequestURI();
+            Map<String, String> queryParams = getQueryParams(requestUri.getQuery());
+            String login = queryParams.get("login");
             // Получение заголовков
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
 
@@ -22,14 +27,15 @@ public class OutUserHandler extends MainHandler {
                 return;
             }
 
-            LogOutUserDtoResponse response = new LogOutUserDtoResponse();
+            DeleteUserDtoResponse response = new DeleteUserDtoResponse();
             try {
-                String login = userService.getLoginByToken(authHeader);
+                userService.deleteUser(login, userService.getLoginByToken(authHeader));
                 userService.logOut(authHeader);
+                songService.deleteSongAndRateDeletedUser(login);
+                commentService.deleteCommentsByLogin(login);
                 response.setLogin(login);
-                response.setToken(authHeader);
+                response.setSuccess_message("Пользователь успешно удален");
                 response.setTime(timeNow);
-                response.setSuccess_message("Выход из учетной записи осуществлен");
                 String jsonResponse = objectMapper.writeValueAsString(response);
                 sendJsonResponse(exchange, jsonResponse, 200);
             } catch (NotExistTokenSession existTokenSession) {

@@ -2,13 +2,12 @@ package org.ifellow.belous.handlers.user;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
+import org.ifellow.belous.dto.response.LoginDtoResponse;
 import org.ifellow.belous.exceptions.user.AutorizeYetException;
 import org.ifellow.belous.exceptions.user.NotExistUserException;
 import org.ifellow.belous.handlers.MainHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class AuthorizationHandler extends MainHandler {
     @Override
@@ -17,25 +16,38 @@ public class AuthorizationHandler extends MainHandler {
             try {
                 // Десериализация JSON в DTO
                 LoginDtoRequest userDto = objectMapper.readValue(exchange.getRequestBody(), LoginDtoRequest.class);
-
-                Map<String, Object> response = new HashMap<>();
+                LoginDtoResponse loginDtoResponse = new LoginDtoResponse();
                 try {
                     String ID = userService.authorization(userDto);
-                    response.put("message", "Вход успешный");
-                    response.put("token", ID);
-                    sendJsonResponse(exchange, response, 200);
+                    loginDtoResponse.setSuccess_message("Вход успешный");
+                    loginDtoResponse.setLogin(userService.getLoginByToken(ID));
+                    loginDtoResponse.setToken(ID);
+                    loginDtoResponse.setTime(timeNow);
+                    // Преобразуем объект в JSON
+                    String jsonResponse = objectMapper.writeValueAsString(loginDtoResponse);
+                    sendJsonResponse(exchange, jsonResponse, 200);
                 } catch (NotExistUserException exception) {
-                    response.put("error", exception.getMessage() + " " + userDto.getLogin());
-                    sendJsonResponse(exchange, response, 400);
+                    ERROR_DTO_RESPONSE.setError_message(exception.getMessage() + " " + userDto.getLogin());
+                    ERROR_DTO_RESPONSE.setTime(timeNow);
+                    String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                    sendJsonResponse(exchange, jsonResponse, 404);
                 } catch (AutorizeYetException e){
-                    response.put("error", e.getMessage());
-                    sendJsonResponse(exchange, response, 400);
+                    ERROR_DTO_RESPONSE.setError_message(e.getMessage() + " " + userDto.getLogin());
+                    ERROR_DTO_RESPONSE.setTime(timeNow);
+                    String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                    sendJsonResponse(exchange, jsonResponse, 400);
                 }
             } catch (Exception e) {
-                sendErrorResponse(exchange, "Invalid request", 400);
+                ERROR_DTO_RESPONSE.setError_message("Invalid Request");
+                ERROR_DTO_RESPONSE.setTime(timeNow);
+                String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                sendJsonResponse(exchange, jsonResponse, 400);
             }
         } else {
-            sendErrorResponse(exchange, "Method Not Allowed", 405);
+            ERROR_DTO_RESPONSE.setError_message("Method Not Allowed");
+            ERROR_DTO_RESPONSE.setTime(timeNow);
+            String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+            sendJsonResponse(exchange, jsonResponse, 405);
         }
     }
 }

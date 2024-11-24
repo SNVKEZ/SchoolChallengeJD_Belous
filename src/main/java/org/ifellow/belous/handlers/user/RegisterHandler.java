@@ -2,6 +2,7 @@ package org.ifellow.belous.handlers.user;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
+import org.ifellow.belous.dto.response.RegisterUserDtoResponse;
 import org.ifellow.belous.exceptions.user.NotValidDataException;
 import org.ifellow.belous.exceptions.user.RegisterException;
 import org.ifellow.belous.handlers.MainHandler;
@@ -16,26 +17,39 @@ public class RegisterHandler extends MainHandler {
     public void handle(HttpExchange exchange) throws IOException {
         if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             try {
-                // Десериализация JSON в DTO
                 RegisterUserDtoRequest userDto = objectMapper.readValue(exchange.getRequestBody(), RegisterUserDtoRequest.class);
+                RegisterUserDtoResponse userDtoResponse = new RegisterUserDtoResponse();
                 Map<String, Object> response = new HashMap<>();
                 try {
                     isValid(userDto);
                     userService.create(userDto);
-                    response.put("message", "Пользователь создан");
-                    sendJsonResponse(exchange, response, 201);
+                    userDtoResponse.setLogin(userDto.getLogin());
+                    userDtoResponse.setSuccess_message("Пользователь создан");
+                    userDtoResponse.setTime(timeNow);
+                    String jsonResponse = objectMapper.writeValueAsString(userDtoResponse);
+                    sendJsonResponse(exchange, jsonResponse, 201);
                 } catch (RegisterException exception) {
-                    response.put("error", "Пользователь уже существует");
-                    sendJsonResponse(exchange, response, 400);
+                    ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
+                    ERROR_DTO_RESPONSE.setTime(timeNow);
+                    String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                    sendJsonResponse(exchange, jsonResponse, 409);
                 } catch (NotValidDataException exception){
-                    response.put("error", "Неправильная валидация отправленного json-а");
-                    sendJsonResponse(exchange, response, 400);
+                    ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
+                    ERROR_DTO_RESPONSE.setTime(timeNow);
+                    String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                    sendJsonResponse(exchange, jsonResponse, 400);
                 }
             } catch (Exception e) {
-                sendErrorResponse(exchange, "Invalid request", 400);
+                ERROR_DTO_RESPONSE.setError_message("Invalid request");
+                ERROR_DTO_RESPONSE.setTime(timeNow);
+                String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                sendJsonResponse(exchange, jsonResponse, 400);
             }
         } else {
-            sendErrorResponse(exchange, "Method Not Allowed", 405);
+            ERROR_DTO_RESPONSE.setError_message("Method Not Allowed");
+            ERROR_DTO_RESPONSE.setTime(timeNow);
+            String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+            sendJsonResponse(exchange, jsonResponse, 405);
         }
     }
 
