@@ -1,12 +1,14 @@
 package org.ifellow.belous.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.Map;
 
 @Data
-@Value
 @Builder
 @Getter
 @Setter
@@ -19,7 +21,8 @@ public class Song {
     int duration;
     String user;
     int grade;
-    int averageGrade;
+    double averageGrade;
     int countGrade;
-    Map<String, String> comment;
+    List<String> idComment;
+    Map<String, Integer> rating;
 }

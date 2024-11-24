@@ -1,12 +1,13 @@
 package org.ifellow.belous.model;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
-import java.util.Map;
 
 @Data
-@Value
 @Builder
 @Getter
 @Setter

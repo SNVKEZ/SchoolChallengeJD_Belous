@@ -1,5 +1,6 @@
 package org.ifellow.belous.service;
 
+import org.ifellow.belous.dao.UserDao;
 import org.ifellow.belous.daoimpl.UserDaoImpl;
 import org.ifellow.belous.dto.request.LoginDtoRequest;
 import org.ifellow.belous.dto.request.RegisterUserDtoRequest;
@@ -12,7 +13,7 @@ import java.util.UUID;
 
 public class UserService {
 
-    private final UserDaoImpl userDao = new UserDaoImpl();
+    private final UserDao userDao = new UserDaoImpl();
 
     public void create(RegisterUserDtoRequest newUser) {
         if (!userDao.checkExistUser(newUser.getLogin())) {
@@ -54,5 +55,13 @@ public class UserService {
             throw new NotExistTokenSession("Несуществующая сессия");
         }
 
+    }
+
+    public void deleteUser(String login, String token) {
+        if (login.equals(token)) {
+            if (!userDao.checkExistUser(login)) {
+                throw new NotExistUserException("Пользователь не найден");
+            } else userDao.deleteUser(login);
+        }
     }
 }

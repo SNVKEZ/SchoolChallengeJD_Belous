@@ -8,7 +8,6 @@ import org.ifellow.belous.model.User;
 
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Optional;
 
 
 public class UserDaoImpl implements UserDao {
@@ -80,5 +79,10 @@ public class UserDaoImpl implements UserDao {
     @Override
     public void recordSession(String login, String ID) {
         Database.activeSessions.put(login,ID);
+    }
+
+    @Override
+    public void deleteUser(String login) {
+        Database.users.removeIf(user -> user.getLogin().equals(login));
     }
 }

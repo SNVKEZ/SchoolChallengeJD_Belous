@@ -2,7 +2,7 @@ package org.ifellow.belous.handlers.comment;
 
 import com.sun.net.httpserver.HttpExchange;
 import org.ifellow.belous.dto.request.CommentCreateDtoRequest;
-import org.ifellow.belous.dto.request.SongCreateDtoRequest;
+import org.ifellow.belous.dto.response.CreateCommentDtoResponse;
 import org.ifellow.belous.exceptions.song.NotExistSongByNameAndExecutorException;
 import org.ifellow.belous.exceptions.song.NotValidSongException;
 import org.ifellow.belous.exceptions.user.NotExistTokenSession;
@@ -11,18 +11,17 @@ import org.ifellow.belous.exceptions.user.NotValidDataException;
 import org.ifellow.belous.handlers.MainHandler;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class CreateCommentHandler extends MainHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         if ("POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            Map<String, Object> response = new HashMap<>();
             try {
                 // Получение заголовков
                 String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
-
+                CreateCommentDtoResponse response = new CreateCommentDtoResponse();
                 if (authHeader == null || authHeader.isEmpty()) {
                     // Если заголовок отсутствует
                     throw new NotExistTokenSession("Неавтаризованный пользователь");
@@ -35,33 +34,54 @@ public class CreateCommentHandler extends MainHandler {
 
                     try {
                         isValid(comment);
-                        commentService.create(comment, userService.getLoginByToken(authHeader),
+                        String id = commentService.create(comment, userService.getLoginByToken(authHeader),
                                 songService.getIdByExecutorAndName(comment.getExecutor(), comment.getName()));
-                        response.put("message", "Комментарий успешно создан");
-                        sendJsonResponse(exchange, response, 200);
+                        songService.addCommentToSong(comment.getExecutor(), comment.getName(), id);
+                        response.setSong(comment.getExecutor() + " - " + comment.getName());
+                        response.setLogin(userService.getLoginByToken(authHeader));
+                        response.setTime(timeNow);
+                        response.setSuccess_message("Комментарий успешно создан");
+                        String jsonResponse = objectMapper.writeValueAsString(response);
+                        sendJsonResponse(exchange, jsonResponse, 200);
                     } catch (NotExistSongByNameAndExecutorException | NotExistUserException exception){
-                        response.put("error", exception.getMessage());
-                        sendJsonResponse(exchange, response, 404);
+                        ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
+                        ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                        String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                        sendJsonResponse(exchange, jsonResponse, 404);
                     }
                     catch (NotValidSongException exception){
-                        response.put("error", exception.getMessage());
-                        sendJsonResponse(exchange, response, 403);
+                        ERROR_DTO_RESPONSE.setError_message(exception.getMessage());
+                        ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                        String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                        sendJsonResponse(exchange, jsonResponse, 403);
                     } catch (NotValidDataException e){
-                        response.put("error", e.getMessage());
-                        sendJsonResponse(exchange, response, 400);
+                        ERROR_DTO_RESPONSE.setError_message(e.getMessage());
+                        ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                        String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                        sendJsonResponse(exchange, jsonResponse, 400);
                     }
                 } catch (NotExistTokenSession existTokenSession) {
-                    response.put("error", existTokenSession.getMessage());
-                    sendJsonResponse(exchange, response, 400);
+                    ERROR_DTO_RESPONSE.setError_message(existTokenSession.getMessage());
+                    ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                    String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                    sendJsonResponse(exchange, jsonResponse, 400);
                 }
             } catch (NotExistTokenSession tokenSession) {
-                response.put("error", tokenSession.getMessage());
-                sendJsonResponse(exchange, response, 400);
+                ERROR_DTO_RESPONSE.setError_message(tokenSession.getMessage());
+                ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                sendJsonResponse(exchange, jsonResponse, 400);
             } catch (Exception e) {
-                sendErrorResponse(exchange, "Invalid request", 400);
+                ERROR_DTO_RESPONSE.setError_message(e.getMessage());
+                ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                sendJsonResponse(exchange, jsonResponse, 400);
             }
         } else {
-            sendErrorResponse(exchange, "Method Not Allowed", 405);
+            ERROR_DTO_RESPONSE.setError_message("Method Not Allowed");
+            ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+            String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+            sendJsonResponse(exchange, jsonResponse, 405);
         }
     }
     private void isValid(CommentCreateDtoRequest comment){

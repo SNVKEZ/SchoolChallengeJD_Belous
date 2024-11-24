@@ -3,7 +3,9 @@ package org.ifellow.belous;
 import com.sun.net.httpserver.HttpServer;
 import org.ifellow.belous.handlers.comment.CreateCommentHandler;
 import org.ifellow.belous.handlers.song.CreateSongHandler;
+import org.ifellow.belous.handlers.song.GradeSongHandler;
 import org.ifellow.belous.handlers.user.AuthorizationHandler;
+import org.ifellow.belous.handlers.user.DeleteUserHandler;
 import org.ifellow.belous.handlers.user.OutUserHandler;
 import org.ifellow.belous.handlers.user.RegisterHandler;
 
@@ -22,8 +24,10 @@ public class Server {
         server.createContext("/out", new OutUserHandler());
         server.createContext("/song/create", new CreateSongHandler());
         server.createContext("/comment/create", new CreateCommentHandler());
+        server.createContext("/song/rate", new GradeSongHandler());
+        server.createContext("/user/delete", new DeleteUserHandler());
         server.setExecutor(null);
         server.start();
-        LOGGER.log(Level.INFO, "Server started");
+        LOGGER.log(Level.INFO, "Server started successfully");
     }
 }
