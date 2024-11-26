@@ -24,18 +24,6 @@ public class MainHandler implements HttpHandler {
     protected static final ErrorDtoResponse ERROR_DTO_RESPONSE = new ErrorDtoResponse();
     protected static final String timeNow = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss"));
 
-//    protected static void checkValidRequest(Object object){
-//
-//    }
-
-    // Метод для отправки JSON-ответа
-    protected static void sendJsonResponse(HttpExchange exchange, Map<String, ?> response, int statusCode) throws IOException {
-        String jsonResponse = objectMapper.writeValueAsString(response);
-        exchange.sendResponseHeaders(statusCode, jsonResponse.getBytes().length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(jsonResponse.getBytes());
-        }
-    }
 
     // Метод для отправки JSON-ответа
     protected static void sendJsonResponse(HttpExchange exchange, String response, int statusCode) throws IOException {
@@ -43,13 +31,6 @@ public class MainHandler implements HttpHandler {
         try (OutputStream os = exchange.getResponseBody()) {
             os.write(response.getBytes());
         }
-    }
-
-    // Метод для отправки JSON-ошибки
-    protected static void sendErrorResponse(HttpExchange exchange, String errorMessage, int statusCode) throws IOException {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", errorMessage);
-        sendJsonResponse(exchange, response, statusCode);
     }
 
     // Метод для извлечения параметров запроса в виде Map

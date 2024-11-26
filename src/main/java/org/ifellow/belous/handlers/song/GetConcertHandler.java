@@ -19,8 +19,10 @@ public class GetConcertHandler extends MainHandler {
             String authHeader = exchange.getRequestHeaders().getFirst("Authorization");
 
             if (authHeader == null || authHeader.isEmpty()) {
-                // Если заголовок отсутствует
-                sendErrorResponse(exchange, "Missing Authorization header", 401);
+                ERROR_DTO_RESPONSE.setError_message("Missing Authorization header");
+                ERROR_DTO_RESPONSE.setTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy-HH-ss")));
+                String jsonResponse = objectMapper.writeValueAsString(ERROR_DTO_RESPONSE);
+                sendJsonResponse(exchange, jsonResponse, 401);
                 return;
             }
 
