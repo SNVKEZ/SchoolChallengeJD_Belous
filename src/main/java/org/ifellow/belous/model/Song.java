@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -12,7 +14,9 @@ import java.util.Map;
 @Builder
 @Getter
 @Setter
-public class Song {
+public class Song implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     String id;
     String name;
     List<String> composers;
